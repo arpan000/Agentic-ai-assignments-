@@ -1,0 +1,78 @@
+LearnML — Example Chatbot Response
+Topic: Supervised Learning
+
+Let's understand supervised learning using a simple example.
+
+## 1. What does supervised learning mean?
+
+Supervised learning is a machine learning approach in which a model learns from examples that already include the correct answers. During training, it looks for patterns connecting the input information to those answers. It can then use the patterns it learned to predict an answer for new data.
+
+For example, imagine a school has historical records containing students' study hours and whether they passed an exam. A model could learn from these labelled records and estimate the likely result for a new student. Its prediction is an estimate, not a guarantee.
+
+## 2. The basic workflow
+
+1. **Collect labelled examples:** Each training record contains input features and a known target.
+2. **Prepare the data:** Handle missing values, check data quality, and convert information into a format the model can use.
+3. **Split the dataset:** Keep some examples aside so the model can be tested on data it did not train on.
+4. **Train the model:** Let an algorithm learn relationships between features and target labels.
+5. **Evaluate performance:** Use suitable metrics on the test data to understand how well the model generalizes.
+6. **Use the model:** Apply it to new examples, while continuing to check its performance over time.
+
+## 3. Two common supervised-learning tasks
+
+- **Classification:** Predicts a category, such as whether a message is spam or not spam.
+- **Regression:** Predicts a numerical quantity, such as the expected selling price of a house.
+
+Binary classification is a type of classification with two possible classes, for example, approved/not approved.
+
+## 4. Small Python demonstration
+
+This example creates sample data and trains a logistic regression classifier. The data is generated for demonstration, so it does not represent real students or real-world outcomes.
+
+```python
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+# Create a small, artificial two-class dataset
+X, y = make_classification(
+    n_samples=200,
+    n_features=6,
+    n_informative=4,
+    n_redundant=0,
+    n_classes=2,
+    random_state=21
+)
+
+# Keep some records aside for testing
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, random_state=21, stratify=y
+)
+
+# Learn patterns from the training records
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, y_train)
+
+# Predict labels for records the model has not seen
+predictions = model.predict(X_test)
+
+# Measure the proportion of correct predictions
+accuracy = accuracy_score(y_test, predictions)
+print(f"Test accuracy: {accuracy:.2%}")
+```
+
+### What should you notice?
+
+- `X` contains the input features, while `y` contains the labels.
+- `fit()` trains the model using the training portion.
+- `predict()` produces labels for the test portion.
+- Accuracy measures the fraction of test predictions that are correct. Accuracy alone may not be enough when classes are imbalanced, so other metrics may also be useful.
+
+## 5. Quick check
+
+Suppose you want to estimate the monthly rent of an apartment from its size, location, and number of bedrooms. Is this classification or regression?
+
+**Answer:** Regression, because the target is a numerical value.
+
+A useful next topic is the difference between supervised, unsupervised, and reinforcement learning.
