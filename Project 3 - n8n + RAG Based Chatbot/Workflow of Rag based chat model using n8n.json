@@ -1,0 +1,292 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        352
+      ],
+      "id": "dee50fb9-5991-4cc0-ad6a-4c654345baa6",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "15o3UjVLZ-dYWb8R8UsH53bid_JCFRr7y",
+          "mode": "list",
+          "cachedResultName": "1. PCI DSS 4.0_PPT.pdf",
+          "cachedResultUrl": "https://drive.google.com/file/d/15o3UjVLZ-dYWb8R8UsH53bid_JCFRr7y/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        432,
+        352
+      ],
+      "id": "8507d675-1c63-4a32-b5be-78f68e5f474c",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "1nVA3fikx9ccmU4e",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "memoryKey": {
+          "__rl": true,
+          "mode": "list",
+          "value": "vector_store_key"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        848,
+        352
+      ],
+      "id": "74599281-bcf3-46f8-9530-7af2177c258b",
+      "name": "Simple Vector Store"
+    },
+    {
+      "parameters": {
+        "model": "=mxbai-embed-large:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        576,
+        192
+      ],
+      "id": "623c11f2-4f2c-4464-81d3-db586114ab78",
+      "name": "Embeddings Ollama",
+      "credentials": {
+        "ollamaApi": {
+          "id": "8fV1X06nOhcJ1M9L",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        928,
+        544
+      ],
+      "id": "4f299fa9-a09c-4e64-8560-6fcc43758e41",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a PCI DSS 4.0 Knowledge Assistant. Your job is to answer questions using the content of the PCI DSS PDF indexed in the connected Simple Vector Store.\n\nInstructions:\n1. Use the connected Simple Vector Store tool to retrieve relevant information from the PDF before answering questions about its contents.\n2. Answer questions about PCI DSS, its purpose, applicability, versions, payment card data, security requirements, compliance processes, and other topics covered in the document.\n3. When asked to summarize the PDF, provide a structured summary of its main topics.\n4. Base your answers on the retrieved document content. Do not invent facts or claim that information appears in the PDF when it was not retrieved.\n5. If the document does not contain sufficient information to answer a question, say: \"I could not find sufficient information in the provided PCI DSS document.\"\n6. Use clear, simple language and organize longer answers with headings or bullet points.\n7. Do not act as a loan approval assistant. Do not discuss LTV, FOIR, or loan eligibility unless the user specifically asks a relevant question and the document supports the answer."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        272,
+        -224
+      ],
+      "id": "dee8fcfa-b8d1-4912-91fb-dd0612229180",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "qwen3:4b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        240,
+        -32
+      ],
+      "id": "77b9ffc0-0e16-4277-9326-c99e1ec42559",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "8fV1X06nOhcJ1M9L",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        368,
+        -32
+      ],
+      "id": "5d810558-27f5-46be-b85a-c2416f37f001",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Search the indexed PCI DSS 4.0 PDF for information relevant to the user's question. Retrieve the most relevant document passages about PCI DSS, its purpose, applicability, versions, payment card data, the 12 security requirements, and compliance processes.\n\nUse this tool whenever the user asks a question about the PDF or requests a summary of its contents. Base the answer on the retrieved passages. Do not answer using unrelated loan-approval information.\n\nIf the requested information cannot be found in the retrieved passages, indicate that the provided document does not contain sufficient information to answer the question.",
+        "memoryKey": {
+          "__rl": true,
+          "mode": "list",
+          "value": "vector_store_key"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        496,
+        -32
+      ],
+      "id": "fafd51e1-af50-4419-bc16-1c4d6dcc0d0c",
+      "name": "Simple Vector Store1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        64,
+        -224
+      ],
+      "id": "aa593f46-11e3-4451-a8d4-99832bb22634",
+      "name": "When chat message received",
+      "webhookId": "6a17db8c-ec05-4bb3-a442-7cd7eae352ca"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Simple Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Vector Store": {
+      "main": [
+        []
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "864df568-682c-4276-abd6-b3a97575808a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "262ab4160a3613ce35bd4340f3f2e3fd8f403df8d86394f8a5430cc6e574e857"
+  },
+  "nodeGroups": [],
+  "id": "fiG5a9BPAHAwXvfQ",
+  "tags": []
+}
